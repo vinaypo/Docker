@@ -1,0 +1,15 @@
+version: '3.9'
+
+services:
+
+  webapp:
+    build: .
+    image: testphpimage
+    ports:
+    - 8082-8089:80
+    volumes:
+      - php_volume:/app
+
+volumes:
+  php_volume:
+
