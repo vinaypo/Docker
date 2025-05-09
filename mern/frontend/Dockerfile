@@ -1,23 +1,22 @@
-# Use the official image as a parent image
-# Description: Dockerfile for the client side of the MERN stack application
+# Stage 1: Build stage
+FROM node:18.9.1-alpine as builder
+WORKDIR /apps
 
-# Use the official image as a parent image
-FROM node:18.9.1
-
-# Set the working directory
-WORKDIR /app
-
-# Copy the file from your host to your current location
-COPY package.json .
-
-# Run the command inside your image filesystem
-RUN npm install
-
-# Inform Docker that the container is listening on the specified port at runtime
-EXPOSE 5173
-
-# Copy the rest of your app's source code from your host to your image filesystem
+# Copy package files first for better caching
+COPY package.json package-lock.json* ./
+RUN npm ci
+# Copy all files and build
 COPY . .
+RUN npm run build # Replace with your build command if needed
 
-# Run the specified command within the container
+# Stage 2: Runtime stage
+FROM node:18.9.1-alpine
+WORKDIR /apps
+
+# Copy production node_modules from builder
+COPY --from=builder /apps/node_modules ./node_modules
+# Copy built application files
+COPY --from=builder /apps .
+
+EXPOSE 5173
 CMD ["npm", "run", "dev"]

@@ -1,14 +1,25 @@
-FROM node:18.9.1
+FROM node:18.9.1-alpine as builder
 
-WORKDIR /app
+WORKDIR /apps
 
-COPY package.json .
+COPY package.json package-lock.json* ./
+
+RUN npm ci
+
+COPY . .
 
 RUN npm install
 
-COPY . .
+#RUN npm run build
+
+FROM node:18.9.1-alpine
+
+WORKDIR /apps
+
+COPY --from=builder /apps/node_modules ./node_modules
+
+COPY --from=builder /apps .
 
 EXPOSE 5050
 
 CMD ["npm", "start"]
-

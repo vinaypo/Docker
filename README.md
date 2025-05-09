@@ -4,7 +4,7 @@
 
 `docker network create demo`
 
-### Build the client 
+### Build the clients
 
 ```sh
 cd mern/frontend

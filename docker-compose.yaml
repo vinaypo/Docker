@@ -1,38 +1,46 @@
 services:
   backend:
-    build: ./mern/backend
+    build:
+      context: ./mern/backend
+      dockerfile: dockerfile
+    container_name: backend-con
     ports:
-      - "5050:5050" 
+      - "5050:5050"
     networks:
-      - mern_network
+      - mern-network
     environment:
-      MONGO_URI: mongodb://mongo:27017/mydatabase  
+      - MONGO_URI=mongodb://mongo:27017/mydatabase
     depends_on:
       - mongodb
-
+  
   frontend:
-    build: ./mern/frontend
+    build:
+      context: ./mern/frontend
+      dockerfile: dockerfile
+    container_name: frontend-con
     ports:
-      - "5173:5173"  
+      - "5173:5173"
     networks:
-      - mern_network
+      - mern-network
+    depends_on:
+      - backend
     environment:
-      REACT_APP_API_URL: http://backend:5050 
+      - REACT_APP_API_URL=http://backend:5050
 
   mongodb:
-    image: mongo:latest  
+    image: mongo:latest
+    container_name: mongodb
     ports:
-      - "27017:27017"  
+      - "27017:27017"
     networks:
-      - mern_network
+      - mern-network
     volumes:
-      - mongo-data:/data/db  
+      - mongo-data:/data/db
 
 networks:
-  mern_network:
-    driver: bridge 
+  mern-network:
+    driver: bridge
 
 volumes:
   mongo-data:
-    driver: local  # Persist MongoDB data locally
-
+    driver: local
